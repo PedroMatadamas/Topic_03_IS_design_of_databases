@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS contacto(
     apellidopat VARCHAR(45) NOT NULL,
     apellidomat VARCHAR(45) NOT NULL,
     correo VARCHAR(45) NOT NULL,
-    ntelefono INT NOT NULL,
+    ntelefono VARCHAR(45),
     primary key(id_contacto)
 )ENGINE = InnoDB;
 
@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS cita(
 	dia INT NOT NULL,
 	mes INT NOT NULL,
 	año INT NOT NULL,
+	hora TIME,
 	asunto VARCHAR(45) NOT NULL,
     primary key(id_cita),
 	lugar_cita INT NOT NULL,

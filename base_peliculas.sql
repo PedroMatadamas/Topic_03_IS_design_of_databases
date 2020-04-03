@@ -1,91 +1,110 @@
-CREATE DATABASE IF NOT EXISTS base_peliculas;
-#selecionar base de datos
-USE base_peliculas;
+drop database peliculas_db;
+create database if not exists peliculas_db;
 
+use peliculas_db;
 
-#crear tablas sin relacion 
+create table if not exists directores(
+	id_director int not null auto_increment,
+    d_nombre varchar(25) not null,
+    d_apellidoPat varchar(25) not null,
+    d_apellidoMat varchar(25),
+    d_nacionalidad varchar(25) not null,
+    primary key (id_director)
+)engine = InnoDB;
 
-CREATE TABLE IF NOT EXISTS idioma(
-	id_idioma INT NOT NULL,
-    idioma VARCHAR(45) NOT NULL,
-    primary key(id_idioma)
-)ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS subtitulo(
-	id_subtitulo INT NOT NULL,
-    subtitulo VARCHAR(45) NOT NULL,
-    primary key(id_subtitulo)
-)ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS peliculas(
-	id_pelicula INT NOT NULL,
-	titulo VARCHAR(45) NOT NULL,
-	nacionalidad VARCHAR(20),
-	idioma VARCHAR(120),
-	subtitulos boolean,
-	primary key(id_pelicula),
-	peliculas_id_idioma INT NOT NULL,
-    CONSTRAINT fkpelicula_idioma
-    FOREIGN KEY (peliculas_id_idioma)
-    REFERENCES idioma(id_idioma),
-	peliculas_id_subtitulo INT NOT NULL,
-    CONSTRAINT fkpelicula_subtitulo
-    FOREIGN KEY (peliculas_id_subtitulo)
-    REFERENCES subtitulo(id_subtitulo)
-)ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS actores(
-	id_actor INT NOT NULL,
-    nombre VARCHAR(45) NOT NULL,
-    apellidopat VARCHAR(45) NOT NULL,
-    apellidomat VARCHAR(45) NOT NULL,
-    nacionalidad VARCHAR(45) NOT NULL,
-    nombre_personaje VARCHAR(45) NOT NULL,
+create table if not exists actores(
+	id_actor int not null auto_increment,
+    a_nombre varchar(25) not null,
+    a_apellidoPat varchar(25) not null,
+    a_apellidoMat varchar(25),
+    a_nacionalidad varchar(25) not null,
     primary key(id_actor)
-)ENGINE = InnoDB;
+)engine = InnoDB;
 
 
-CREATE TABLE IF NOT EXISTS directores(
-	id_director INT NOT NULL,
-    nombre VARCHAR(45) NOT NULL,
-    apellidopat VARCHAR(45) NOT NULL,
-    apellidomat VARCHAR(45) NOT NULL,
-    fecha_nacimiento DATE,
-    pais_origen VARCHAR(120),
-    primary key(id_director),
-    peliculas_id_pelicula INT NOT NULL,
-    CONSTRAINT fkdirector_peliculas
-    FOREIGN KEY (peliculas_id_pelicula)
-    REFERENCES peliculas(id_pelicula)
-)ENGINE = InnoDB;
+create table if not exists idiomas(
+	id_idioma int not null auto_increment,
+    idioma varchar(25) not null,
+    primary key(id_idioma)
+)engine = InnoDB;
 
-CREATE TABLE IF NOT EXISTS actores_peliculas(
-	peliculas_id_pelicula INT NOT NULL,
-    actores_id_actor INT NOT NULL,
-    PRIMARY KEY(peliculas_id_pelicula, actores_id_actor),
-    CONSTRAINT fkactor_peliculas_actor
-    FOREIGN KEY (actores_id_actor)
-    REFERENCES actores(id_actor),
-	CONSTRAINT fkactor_actor_peliculas
-    FOREIGN KEY (peliculas_id_pelicula)
-    REFERENCES peliculas(id_pelicula)
-)ENGINE = InnoDB;
+create table if not exists subtitulos(
+	id_subtitulo int not null,
+    substiulo varchar(45) not null,
+    primary key(id_subtitulo)
+)engine = InnoDB;
 
-CREATE TABLE IF NOT EXISTS generos(
-	id_genero INT NOT NULL,
-    genero VARCHAR(45) NOT NULL,
+create table if not exists titulos(
+	titulo varchar(45) not null,   
+    tF_publi date not null, #titulo fecha de publicación
+    resumen varchar(250) not null,
+    primary key(titulo)
+)engine = InnoDB;
+
+create table if not exists peliculas(
+	id_pelicula int not null auto_increment,
+    p_titulo varchar(45),
+    idioma int,
+    subtitulos int,
+    primary key(id_pelicula),
+    #Idioma
+    constraint fk_idioma foreign key(idioma)
+		references idiomas(id_idioma)
+        on delete set null
+        on update cascade,
+	#Subtitulos
+    constraint fk_subtitulos foreign key(subtitulos)
+		references subtitulos(id_subtitulo)
+        on delete set null
+        on update cascade,
+	#Detalles
+    constraint fkp_titulo foreign key(p_titulo)
+		references titulos(titulo)
+        on delete set null
+        on update cascade
+)engine = InnoDB;
+
+create table if not exists genero(
+	id_genero int not null auto_increment,
+    genero varchar(25) not null,
     primary key(id_genero)
-)ENGINE = InnoDB;
+)engine = InnoDB;
 
-CREATE TABLE IF NOT EXISTS generos_peliculas(
-	peliculas_id_pelicula INT NOT NULL,
-    generos_id_genero INT NOT NULL,
-    PRIMARY KEY(peliculas_id_pelicula, generos_id_genero),
-    CONSTRAINT fkgeneros_peliculas_genero
-    FOREIGN KEY (generos_id_genero)
-    REFERENCES generos(id_genero),
-	CONSTRAINT fkgenero_genero_peliculas
-    FOREIGN KEY (peliculas_id_pelicula)
-    REFERENCES peliculas(id_pelicula)
-)ENGINE = InnoDB;
+create table if not exists genpelicula(
+	gp_id_genero int not null,
+    gp_id_pelicula int not null,
+    primary key(gp_id_genero,  gp_id_pelicula),
+    constraint fkgp_id_genero foreign key(gp_id_genero)
+		references genero(id_genero)
+        on update cascade,
+        
+	constraint fkgp_id_pelicula foreign key(gp_id_pelicula)
+		references peliculas(id_pelicula)
+        on update cascade
+)engine = InnoDB;
 
+create table if not exists dirpeliculas(
+	dp_id_director int not null,
+    dp_id_pelicula int not null,
+    primary key(dp_id_director, dp_id_pelicula),
+    constraint fkdp_id_director foreign key(dp_id_director)
+		references directores(id_director)
+        on update cascade,
+	constraint fkdp_id_pelicula foreign key(dp_id_pelicula)
+		references peliculas(id_pelicula)
+        on update cascade
+)engine = InnoDB;
+
+create table if not exists actorpeliculas(
+	ap_id_actor int not null,
+	ap_id_pelicula int not null,
+    primary key(ap_id_actor,  ap_id_pelicula),
+	
+    constraint fkap_id_pelicula foreign key(ap_id_pelicula)
+		references peliculas(id_pelicula)
+        on update cascade,
+        
+	constraint fkap_id_actor foreign key(ap_id_actor)
+		references actores(id_actor)
+        on update cascade
+)engine = InnoDB;

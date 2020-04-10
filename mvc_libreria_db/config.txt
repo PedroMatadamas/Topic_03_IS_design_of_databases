@@ -1,0 +1,4 @@
+user:vr
+password:Obesin10.
+host:localhost
+database:libreria_db

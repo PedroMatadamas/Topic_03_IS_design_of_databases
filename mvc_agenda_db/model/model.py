@@ -278,4 +278,72 @@ class Model:
             self.cnx.rollback()
             return err
 
+    """
+    ************************
+    * citas_detalle methods*
+    ************************
+    """
+    
+    def create_cita_contact(self, contacto_citas,cita_citas):
+        try:
+            sql = 'INSERT INTO citas (`contacto_citas`,`cita_citas`) VALUES (%s,%s)'
+            vals = (contacto_citas,cita_citas)
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            print(err)
+            return err
+
+    def read_a_cita_cita(self,cita_citas ):
+        try:
+            sql = 'SELECT * FROM citas WHERE cita_citas = %s'
+            vals = (cita_citas,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchone()
+            return record
+        except connector.Error as err:
+            return err
+
+    def read_a_contacto_citas(self,cita_citas ):
+        try:
+            sql = 'SELECT * FROM citas WHERE contacto_citas = %s'
+            vals = (cita_citas,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchone()
+            return record
+        except connector.Error as err:
+            return err
+
+    def read__all__cita (self):
+        try:
+            sql = 'SELECT * FROM citas'
+            self.cursor.execute(sql)
+            record = self.cursor.fetchall()
+            return record
+        except connector.Error as err:
+            return err
+
+    def update_citas(self,fields,vals):
+        try:
+            sql = 'UPDATE citas SET '+','.join(fields)+' WHERE cita_citas = %s'
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            print(err)
+            return err
+
+    def delete_cita(self, id_lugar):
+        try:
+            sql = 'DELETE FROM citas WHERE cita_citas = %s'
+            vals = (id_lugar,)
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            return err
 

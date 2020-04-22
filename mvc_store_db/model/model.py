@@ -189,7 +189,7 @@ class Model:
 
     def read_a_client(self,id_client ):
         try:
-            sql = 'SELECT * FROM clients WHERE id_client = %s'
+            sql = 'SELECT clients.* ,zips.z_city, zips.z_state FROM clients JOIN zips ON clients.c_zip = zips.zip and clients.id_client = %s'
             vals = (id_client,)
             self.cursor.execute(sql,vals)
             record = self.cursor.fetchone()
@@ -199,7 +199,7 @@ class Model:
 
     def read_a_client_zip(self,zip):
         try:
-            sql = 'SELECT * FROM clients WHERE c_zip  = %s'
+            sql = 'SELECT clients.* ,zips.z_city, zips.z_state FROM clients JOIN zips ON clients.c_zip = zips.zip and clientsc_zip  = %s'
             vals = (zip,)
             self.cursor.execute(sql,vals)
             record = self.cursor.fetchall()
@@ -208,7 +208,7 @@ class Model:
             return err
     def read__all__clients (self):
         try:
-            sql = 'SELECT * FROM clients'
+            sql = 'SELECT clients.* ,zips.z_city, zips.z_state FROM clients JOIN zips ON clients.c_zip = zips.zip'
             self.cursor.execute(sql)
             record = self.cursor.fetchall()
             return record
@@ -234,6 +234,146 @@ class Model:
             self.cursor.execute(sql,vals)
             self.cnx.commit()
             return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            return err
+
+    """
+    ****************
+    * Order methods*
+    ****************
+    """
+
+    def create_order(self, id_client, status, date, total):
+        try:
+            sql = 'INSERT INTO oorders (`id_client`,`o_status`,`o_date`,`o_total`) VALUES (%s,%s,%s,%s)'
+            vals = (id_client, status, date, total)
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            id_order = self.cursor.lastrowid
+            return id_order
+        except connector.Error as err:
+            self.cnx.rollback()
+            return err
+    
+    def read_a_oder(self, id_order):
+        try:
+            sql = 'SELECT orders.*, clients.* zips.* FROM orders JOIN clients ON clients.id_client = orders.id_client and orders.id_order = %s JOIN zips ON zips.zip = clients.c_zip'
+            vals = (id_order,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchone()
+            return record
+        except connector.Error as err:
+            return err
+
+    def read_all_oders(self, id_order):
+        try:
+            sql = 'SELECT orders.*, clients.* zips.* FROM orders JOIN clients ON clients.id_client = orders.id_client JOIN zips ON zips.zip = clients.c_zip'
+            vals = (id_order,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchall()
+            return record
+        except connector.Error as err:
+            return err
+    
+    def read_orders_date(self, date):
+        try:
+            sql = 'SELECT orders.*, clients.* zips.* FROM orders JOIN clients ON clients.id_client = orders.id_client and orders.o_date = %s JOIN zips ON zips.zip = clients.c_zip'
+            vals = (date,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchall()
+            return record
+        except connector.Error as err:
+            return err
+
+    def read_orders_client(self, id_client):
+        try:
+            sql = 'SELECT orders.*, clients.* zips.* FROM orders JOIN clients ON clients.id_client = orders.id_client and orders.id_client = %s JOIN zips ON zips.zip = clients.c_zip'
+            vals = (id_client,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchall()
+            return record
+        except connector.Error as err:
+            return err
+
+    def update_order(self,fields,vals):
+        try:
+            sql = 'UPDATE orders SET '+','.join(fields)+' WHERE id_order = %s'
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            print(err)
+            return err
+
+    def delelete_oder(self, id_order):
+        try:
+            sql = 'DELETE FROM orders WHERE id_order = %s'
+            vals = (id_order,)
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            count = self.cursor.rowcount
+            return count
+        except connector.Error as err:
+            self.cnx.rollback()
+            return err
+    """
+    ************************
+    * Order Details methods*
+    ************************
+    """
+
+    def create_order_detail(self, id_order,id_product, od_amount, od_total):
+        try:
+            sql = 'INSERT INTO oorders (`id_order`,`id_product`, `d_amount`, `od_total`) VALUES (%s,%s,%s,%s)'
+            vals = (id_order,id_product, od_amount, od_total)
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            return err
+
+    def read_a_oder_detail(self, id_order, id_product):
+        try:
+            sql = 'SELECT products.id_product.products.p_name, products.p_brand, products.p_price, order_details.od_amount, order_details.od_total FROM order_details JOIN products ON oderde_details.id_product = products.id_product and order_detail.id_order = %s and order_detail.id_product = %s'
+            vals = (id_order, id_product)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchone()
+            return record
+        except connector.Error as err:
+            return err
+
+    def read_a_oder_details(self, id_order):
+        try:
+            sql = 'SELECT products.id_product.products.p_name, products.p_brand, products.p_price, order_details.od_amount, order_details.od_total FROM order_details JOIN products ON oderde_details.id_product = products.id_product and order_detail.id_order = %s'
+            vals = (id_order,)
+            self.cursor.execute(sql,vals)
+            record = self.cursor.fetchall()
+            return record
+        except connector.Error as err:
+            return err
+
+    def update_order_details(self,fields,vals):
+        try:
+            sql = 'UPDATE order_details SET '+','.join(fields)+' WHERE id_order = %s and id_product = %s'
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            return True
+        except connector.Error as err:
+            self.cnx.rollback()
+            print(err)
+            return err
+
+    def delelete_oder_details(self, id_order,id_product):
+        try:
+            sql = 'DELETE FROM orders WHERE WHERE id_order = %s and id_product = %s'
+            vals = (id_order,id_product)
+            self.cursor.execute(sql,vals)
+            self.cnx.commit()
+            count = self.cursor.rowcount
+            return count
         except connector.Error as err:
             self.cnx.rollback()
             return err
